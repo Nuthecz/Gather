@@ -13,7 +13,7 @@ uint32_t calculateCRC32(const unsigned char* data, size_t length){
     return crc;
 }
 
-void calculateOpen(){
+void openHookStatus(){
     // 获取 libc open_offset
     SandHook::ElfImg libc("libc.so");
     void* open_addr = libc.getSymbAddress("open");
@@ -39,7 +39,7 @@ void calculateOpen(){
 
 }
 
-void calculateSegment(){
+void segmentHookStatus(){
     // 获取 libc text_offset
     SandHook::ElfImg libc("libc.so");
     auto text_info = libc.getTextSectionInfo();
@@ -84,5 +84,57 @@ void calculateSegment(){
 
     if(local_crc32_plt_value != mem_crc32_plt_value){
         LOGE("plt hook detected");
+    }
+    close(fd);
+}
+
+void prettyMethodHookStatus(){
+    SandHook::ElfImg libart("libart.so");
+    // 本地文件查找的
+    // _ZN3art9ArtMethod12PrettyMethodEb
+    // _ZN3art9ArtMethod12PrettyMethodEPS0_b
+
+    // https://github1s.com/LSPosed/LSPlant/blob/master/lsplant/src/main/jni/art/runtime/art_method.cxx#L27
+    // lsposed 源码中的，但是在测试中只有第一个可以找到相应的函数，所以还是需要与本地文件相结合来看
+    // _ZN3art9ArtMethod12PrettyMethodEPS0_b
+    // _ZN3art12PrettyMethodEPNS_9ArtMethodEb
+    // _ZN3art12PrettyMethodEPNS_6mirror9ArtMethodEb
+    std::array<const char*, 4> symbols = {
+            "_ZN3art9ArtMethod12PrettyMethodEb",
+            "_ZN3art9ArtMethod12PrettyMethodEPS0_b",
+            "_ZN3art12PrettyMethodEPNS_9ArtMethodEb",
+            "_ZN3art12PrettyMethodEPNS_6mirror9ArtMethodEb"
+    };
+
+    void * PrettyMethod_addr = nullptr;
+    for (const auto& symbol : symbols) {
+        PrettyMethod_addr = libart.getSymbAddress(symbol);
+        if (PrettyMethod_addr != nullptr) {
+            break;
+        }
+    }
+
+    if (PrettyMethod_addr == nullptr) {
+        LOGI("PrettyMethod not found");
+    }
+
+    uintptr_t PrettyMethod_offset = (uintptr_t)PrettyMethod_addr - (uintptr_t)libart.getBase();
+    LOGI("PrettyMethod addr: 0x%x", PrettyMethod_offset);
+
+    // 根据 PrettyMethod_offset 读取本地 libart PrettyMethod 的前16字节进行 CRC32 计算
+    int fd = open(libart.name().c_str(), O_RDONLY);
+    lseek(fd, PrettyMethod_offset, 0);
+    char buf[16];
+    read(fd, buf, 16);
+    uintptr_t local_crc32_prettymethod_value = calculateCRC32(
+            reinterpret_cast<const unsigned char*>(buf), 16);
+
+    // 读取内存中的 PrettyMethod 前16字节进行 CRC32 计算
+    uintptr_t mem_crc32_prettymethod_value = calculateCRC32(
+            reinterpret_cast<const unsigned char*>(PrettyMethod_addr), 16);
+
+    LOGI("local PrettyMethod crc32: 0x%x, mem PrettyMethod crc32: 0x%x", local_crc32_prettymethod_value, mem_crc32_prettymethod_value);
+    if(local_crc32_prettymethod_value != mem_crc32_prettymethod_value){
+        LOGE("PrettyMethod hook detected");
     }
 }

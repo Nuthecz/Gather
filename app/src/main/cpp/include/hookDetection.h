@@ -10,9 +10,12 @@
 #include "../include/config.h"
 
 // 通过 CRC32 比较内存和本地文件数据比较 open 处是否被修改
-void calculateOpen();
+void openHookStatus();
 
 // 通过 CRC32 比较内存和本地文件数据比较 .text 和 .plt段 是否被修改
-void calculateSegment();
+void segmentHookStatus();
+
+// 通过 CRC32 比较内存和本地文件数据比较 PrettyMethod 是否被修改
+void prettyMethodHookStatus();
 
 #endif //GATHER_HOOKDETECTION_H
