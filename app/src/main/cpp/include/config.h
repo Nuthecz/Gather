@@ -1,13 +1,16 @@
 //
 // Created by NU on 2024/8/31.
 //
-#include <jni.h>
+
 #ifndef GATHER_CONFIG_H
 #define GATHER_CONFIG_H
 
+#pragma once
+#include <android/log.h>
+#include <string>
 
 // 配置日志
-#define TAG "nuthecz"
+#define TAG "tcz"
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, TAG, __VA_ARGS__);
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO , TAG, __VA_ARGS__);
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, TAG, __VA_ARGS__);

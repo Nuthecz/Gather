@@ -15,6 +15,7 @@ set(CMAKE_CXX_STANDARD 20)
 # with ${CMAKE_PROJECT_NAME} (both CMake variables are in-sync within the top level
 # build script scope).
 project("gather")
+link_libraries(z)
 
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
@@ -33,12 +34,19 @@ add_library(
         gather
         SHARED
         # List C/C++ source files with relative paths to this CMakeLists.txt.
-        gather.cpp)
+        gather.cpp
+        include/elf_util.h
+        include/hookDetection.h
+        util/elf_util.cpp
+        inlineHook/hookDetection.cpp
+)
 
 # Specifies libraries CMake should link to your target library. You
 # can link libraries from various origins, such as libraries defined in this
 # build script, prebuilt third-party libraries, or Android system libraries.
-target_link_libraries(${CMAKE_PROJECT_NAME}
+target_link_libraries(
+        gather
         # List libraries link to the target library
         android
-        log)
+        log
+)
