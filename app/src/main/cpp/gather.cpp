@@ -5,11 +5,13 @@
 extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_nuthecz_gather_MainActivity_stringFromJNI(
-        JNIEnv* env,
+        JNIEnv *env,
         jobject /* this */) {
     std::string hello = "Hello from C++";
     openHookStatus();
     segmentHookStatus();
     prettyMethodHookStatus();
+    callStackDetection(env);
+
     return env->NewStringUTF(hello.c_str());
 }
