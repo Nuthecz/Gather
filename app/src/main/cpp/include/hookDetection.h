@@ -9,6 +9,7 @@
 
 #include "../include/elf_util.h"
 #include "../include/config.h"
+#include "../include/obfs-string.h"
 #include <jni.h>
 #include <list>
 #include <string>

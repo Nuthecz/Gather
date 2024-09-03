@@ -141,10 +141,8 @@ void prettyMethodHookStatus() {
 }
 
 void callStackDetection(JNIEnv *env) {
-    SandHook::ElfImg libart("libart.so");
-    bool xposedDetected = false;
-    bool fridaDetected = false;
-    bool rpcDetected = false;
+    // 使用 "../include/obfs-string.h" 的字符串混淆功能
+    SandHook::ElfImg libart("libart.so"_iobfs.c_str());
 
     // 获取 libart nativeFillInStackTrace，进而获取 javaStackState
     void *nativeFillInStackTrace = libart.getSymbAddress(

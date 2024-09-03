@@ -39,6 +39,7 @@ add_library(
         include/hookDetection.h
         util/elf_util.cpp
         inlineHook/hookDetection.cpp
+        include/obfs-string.h
 )
 
 # Specifies libraries CMake should link to your target library. You
